@@ -4,7 +4,8 @@ on:
   push:
     tags:
       - 'v*'
-
+  pull_request:
+  workflow_dispatch:   # permite lanzarlo manualmente desde la web
 
 permissions:
   contents: write
