@@ -401,7 +401,7 @@ fn main() -> eframe::Result<()> {
         .and_then(|img| {
             let rgba = img.to_rgba8();
             let (width, height) = rgba.dimensions();
-            Some(eframe::IconData {
+            Some(egui::IconData {
                 rgba: rgba.into_raw(),
                 width,
                 height,
@@ -413,7 +413,7 @@ fn main() -> eframe::Result<()> {
             .with_title("Cyberpunk Notes")
             .with_inner_size([900.0, 600.0])
             .with_min_inner_size([400.0, 300.0])
-            .with_icon(icon.unwrap_or_default()),
+            .with_icon(icon),
         ..Default::default()
     };
 
