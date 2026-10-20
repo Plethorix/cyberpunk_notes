@@ -394,26 +394,32 @@ impl eframe::App for CyberpunkNotes {
 // ─────────────────────────────────────────────────────────────────────────────
 
 fn main() -> eframe::Result<()> {
-    // Cargar el icono desde PNG
-    let icon_data = include_bytes!("../icon.png");
-    let icon = image::load_from_memory(icon_data)
+    // Cargar el icono desde PNG y envolverlo en Arc
+    let icon = image::load_from_memory(include_bytes!("../icon.png"))
         .ok()
         .and_then(|img| {
             let rgba = img.to_rgba8();
             let (width, height) = rgba.dimensions();
-            Some(egui::IconData {
+            Some(std::sync::Arc::new(egui::IconData {
                 rgba: rgba.into_raw(),
                 width,
                 height,
-            })
+            }))
         });
 
+    // Construir el viewport base
+    let mut viewport = egui::ViewportBuilder::default()
+        .with_title("Cyberpunk Notes")
+        .with_inner_size([900.0, 600.0])
+        .with_min_inner_size([400.0, 300.0]);
+
+    // Añadir el icono solo si se cargó correctamente
+    if let Some(icon) = icon {
+        viewport = viewport.with_icon(icon);
+    }
+
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_title("Cyberpunk Notes")
-            .with_inner_size([900.0, 600.0])
-            .with_min_inner_size([400.0, 300.0])
-            .with_icon(icon),
+        viewport,
         ..Default::default()
     };
 
