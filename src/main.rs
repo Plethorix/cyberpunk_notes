@@ -82,7 +82,6 @@ impl CyberpunkNotes {
             Err(_) => (Vec::new(), None),
         };
 
-        // Aplicar tema cyberpunk al contexto.
         apply_cyberpunk_visuals(&_cc.egui_ctx);
 
         Self {
@@ -133,10 +132,6 @@ impl CyberpunkNotes {
         self.save_status = SaveStatus::Saved;
     }
 
-    fn active_note_mut(&mut self) -> Option<&mut Note> {
-        self.active.and_then(|i| self.notes.get_mut(i))
-    }
-
     fn create_note(&mut self) {
         let name = if self.new_note_name.trim().is_empty() {
             format!("Nota {}", self.notes.len() + 1)
@@ -166,10 +161,6 @@ impl CyberpunkNotes {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Ruta de persistencia (junto al ejecutable, fallback a "./")
-// ─────────────────────────────────────────────────────────────────────────────
-
 fn resolve_save_path() -> PathBuf {
     let filename = "cyberpunk_notes.json";
     if let Ok(exe) = std::env::current_exe() {
@@ -179,10 +170,6 @@ fn resolve_save_path() -> PathBuf {
     }
     PathBuf::from(filename)
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tema cyberpunk
-// ─────────────────────────────────────────────────────────────────────────────
 
 fn apply_cyberpunk_visuals(ctx: &egui::Context) {
     let mut visuals = egui::Visuals::dark();
@@ -201,33 +188,31 @@ fn apply_cyberpunk_visuals(ctx: &egui::Context) {
     visuals.faint_bg_color = faint_bg;
 
     visuals.selection.bg_fill = sel_bg;
-    visuals.selection.stroke = Stroke::new(1.0, accent);
+    visuals.selection.stroke = Stroke::new(1.0_f32, accent);
 
-    // Widgets: noninteractive, inactive, hovered, active
     let widget_bg = faint_bg;
     visuals.widgets.noninteractive.bg_fill = widget_bg;
-    visuals.widgets.noninteractive.fg_stroke = Stroke::new(1.0, text_orange);
-    visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, accent);
+    visuals.widgets.noninteractive.fg_stroke = Stroke::new(1.0_f32, text_orange);
+    visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0_f32, accent);
 
     visuals.widgets.inactive.bg_fill = widget_bg;
-    visuals.widgets.inactive.fg_stroke = Stroke::new(1.0, text_orange);
-    visuals.widgets.inactive.bg_stroke = Stroke::new(1.0, accent);
+    visuals.widgets.inactive.fg_stroke = Stroke::new(1.0_f32, text_orange);
+    visuals.widgets.inactive.bg_stroke = Stroke::new(1.0_f32, accent);
 
     visuals.widgets.hovered.bg_fill = Color32::from_rgb(0x2a, 0x1a, 0x00);
-    visuals.widgets.hovered.fg_stroke = Stroke::new(1.5, accent);
-    visuals.widgets.hovered.bg_stroke = Stroke::new(1.5, accent);
+    visuals.widgets.hovered.fg_stroke = Stroke::new(1.5_f32, accent);
+    visuals.widgets.hovered.bg_stroke = Stroke::new(1.5_f32, accent);
 
     visuals.widgets.active.bg_fill = Color32::from_rgb(0x33, 0x22, 0x00);
-    visuals.widgets.active.fg_stroke = Stroke::new(1.5, accent);
-    visuals.widgets.active.bg_stroke = Stroke::new(1.5, accent);
+    visuals.widgets.active.fg_stroke = Stroke::new(1.5_f32, accent);
+    visuals.widgets.active.bg_stroke = Stroke::new(1.5_f32, accent);
 
     visuals.widgets.open.bg_fill = widget_bg;
-    visuals.widgets.open.fg_stroke = Stroke::new(1.0, text_orange);
-    visuals.widgets.open.bg_stroke = Stroke::new(1.0, accent);
+    visuals.widgets.open.fg_stroke = Stroke::new(1.0_f32, text_orange);
+    visuals.widgets.open.bg_stroke = Stroke::new(1.0_f32, accent);
 
     ctx.set_visuals(visuals);
 
-    // Fuentes monospace en todos los text_styles.
     ctx.all_styles_mut(|style| {
         style.text_styles = [
             (egui::TextStyle::Heading, FontId::monospace(22.0)),
@@ -240,24 +225,17 @@ fn apply_cyberpunk_visuals(ctx: &egui::Context) {
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// eframe::App
-// ─────────────────────────────────────────────────────────────────────────────
-
 impl eframe::App for CyberpunkNotes {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Atajo Ctrl+S / Cmd+S
         if ctx.input(|i| i.modifiers.command && i.key_pressed(egui::Key::S)) {
             self.save();
         }
 
-        // Cierre por viewport → guardar.
         let close_requested = ctx.input(|i| i.viewport().close_requested());
         if close_requested {
             self.save();
         }
 
-        // ─── Panel lateral izquierdo ───────────────────────────────────────
         egui::SidePanel::left("notes_panel")
             .default_width(220.0)
             .resizable(true)
@@ -274,15 +252,10 @@ impl eframe::App for CyberpunkNotes {
                         .hint_text("Nueva nota...")
                         .desired_width(f32::INFINITY),
                 );
-                if input_resp.lost_focus()
-                    && ui.input(|i| i.key_pressed(egui::Key::Enter))
-                {
+                if input_resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
                     create = true;
                 }
-                if ui
-                    .add_sized([ui.available_width(), 24.0], egui::Button::new("+"))
-                    .clicked()
-                {
+                if ui.add_sized([ui.available_width(), 24.0], egui::Button::new("+")).clicked() {
                     create = true;
                 }
                 if create {
@@ -298,10 +271,7 @@ impl eframe::App for CyberpunkNotes {
                     .show(ui, |ui| {
                         for (i, note) in self.notes.iter().enumerate() {
                             let is_active = self.active == Some(i);
-                            if ui
-                                .selectable_label(is_active, &note.name)
-                                .clicked()
-                            {
+                            if ui.selectable_label(is_active, &note.name).clicked() {
                                 if self.active != Some(i) {
                                     self.active = Some(i);
                                     self.mark_dirty();
@@ -311,7 +281,6 @@ impl eframe::App for CyberpunkNotes {
                     });
             });
 
-        // ─── Panel central ─────────────────────────────────────────────────
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(idx) = self.active {
                 if idx >= self.notes.len() {
@@ -325,10 +294,7 @@ impl eframe::App for CyberpunkNotes {
                     let mut title = self.notes[idx].name.clone();
                     let title_resp = ui.horizontal(|ui| {
                         ui.label("▸ Título:");
-                        ui.add(
-                            egui::TextEdit::singleline(&mut title)
-                                .desired_width(f32::INFINITY),
-                        )
+                        ui.add(egui::TextEdit::singleline(&mut title).desired_width(f32::INFINITY))
                     });
                     if title_resp.inner.changed() {
                         self.notes[idx].name = title;
@@ -361,9 +327,7 @@ impl eframe::App for CyberpunkNotes {
                     let available = ui.available_size();
                     ui.allocate_ui(available, |ui| {
                         ui.with_layout(
-                            egui::Layout::centered_and_justified(
-                                egui::Direction::TopDown::default(),
-                            ),
+                            egui::Layout::centered_and_justified(egui::Direction::TopDown),
                             |ui| {
                                 ui.heading("◢ Selecciona o crea una nota ◣");
                             },
@@ -373,7 +337,6 @@ impl eframe::App for CyberpunkNotes {
             }
         });
 
-        // ─── Barra inferior ────────────────────────────────────────────────
         egui::TopBottomPanel::bottom("status_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.colored_label(self.save_status.color(), self.save_status.label());
@@ -387,7 +350,6 @@ impl eframe::App for CyberpunkNotes {
             });
         });
 
-        // ─── Modal de confirmación ─────────────────────────────────────────
         if self.show_delete_modal {
             let name = self
                 .active
@@ -418,10 +380,6 @@ impl eframe::App for CyberpunkNotes {
         self.save();
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// main
-// ─────────────────────────────────────────────────────────────────────────────
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
