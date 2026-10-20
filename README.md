@@ -13,7 +13,7 @@ monospaced fonts throughout.
 It's built in **Rust** with egui),
 compiles to a **single binary of 3.8 MB**, and makes **zero disk writes during
 a session** — your notes live entirely in RAM and are persisted **once**, when
-you close the app.
+you close the app. The data is stored in the same folder where you run the program with the name cyberpunk_notes.json, you can backup it if you wish. 
 
 No accounts. No cloud. No telemetry. No background processes. No autosave
 churning your SSD.
