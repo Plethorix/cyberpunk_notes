@@ -6,7 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Modelo
+// Model
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[derive(Clone, Serialize, Deserialize, Default)]
@@ -28,7 +28,7 @@ struct PersistedRef<'a> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Estado de guardado
+// Save state
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -42,10 +42,10 @@ enum SaveStatus {
 impl SaveStatus {
     fn label(self) -> &'static str {
         match self {
-            SaveStatus::Idle => "◦ Sin cambios",
-            SaveStatus::Dirty => "● Cambios sin guardar",
-            SaveStatus::Saved => "✓ Guardado",
-            SaveStatus::Err => "✖ Error al guardar",
+            SaveStatus::Idle => "◦ No changes",
+            SaveStatus::Dirty => "● Changes not saved",
+            SaveStatus::Saved => "✓ Saved",
+            SaveStatus::Err => "✖ Error",
         }
     }
     fn color(self) -> Color32 {
@@ -58,7 +58,7 @@ impl SaveStatus {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Aplicación
+// App
 // ─────────────────────────────────────────────────────────────────────────────
 
 struct CyberpunkNotes {
@@ -236,21 +236,21 @@ impl eframe::App for CyberpunkNotes {
             self.save();
         }
 
-        // ─── Panel lateral izquierdo ───────────────────────────────────────
+        // ─── Left panel ───────────────────────────────────────
         egui::SidePanel::left("notes_panel")
             .default_width(220.0)
             .resizable(true)
             .width_range(150.0..=400.0)
             .show(ctx, |ui| {
                 ui.vertical_centered(|ui| {
-                    ui.heading("◢ NOTAS ◣");
+                    ui.heading("◢ NOTES ◣");
                 });
                 ui.add_space(6.0);
 
                 let mut create = false;
                 let input_resp = ui.add(
                     egui::TextEdit::singleline(&mut self.new_note_name)
-                        .hint_text("Nueva nota...")
+                        .hint_text("New note...")
                         .desired_width(f32::INFINITY),
                 );
                 if input_resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
@@ -286,7 +286,7 @@ impl eframe::App for CyberpunkNotes {
                     });
             });
 
-        // ─── Panel central ─────────────────────────────────────────────────
+        // ───central panel ─────────────────────────────────────────────────
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(idx) = self.active {
                 if idx >= self.notes.len() {
@@ -335,7 +335,7 @@ impl eframe::App for CyberpunkNotes {
                         ui.with_layout(
                             egui::Layout::centered_and_justified(egui::Direction::TopDown),
                             |ui| {
-                                ui.heading("◢ Selecciona o crea una nota ◣");
+                                ui.heading("◢ Select or create a note ◣");
                             },
                         );
                     });
@@ -343,14 +343,14 @@ impl eframe::App for CyberpunkNotes {
             }
         });
 
-        // ─── Barra inferior ────────────────────────────────────────────────
+        // ─── Low Bar ────────────────────────────────────────────────
         egui::TopBottomPanel::bottom("status_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.colored_label(self.save_status.color(), self.save_status.label());
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     let count = self.notes.len();
                     ui.label(format!("{count} nota(s)"));
-                    if ui.button("💾 Guardar (Ctrl+S)").clicked() {
+                    if ui.button("💾 Save (Ctrl+S)").clicked() {
                         self.save();
                     }
                 });
@@ -365,18 +365,18 @@ impl eframe::App for CyberpunkNotes {
                 .map(|n| n.name.clone())
                 .unwrap_or_default();
 
-            egui::Window::new("Confirmar eliminación")
+            egui::Window::new("Confirm delete")
                 .anchor(egui::Align2::CENTER_CENTER, Vec2::ZERO)
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
-                    ui.label(format!("¿Eliminar la nota \"{name}\"?"));
+                    ui.label(format!("¿Delete the note \"{name}\"?"));
                     ui.add_space(10.0);
                     ui.horizontal(|ui| {
-                        if ui.button("Sí, eliminar").clicked() {
+                        if ui.button("Yes, eliminate it").clicked() {
                             self.delete_active();
                         }
-                        if ui.button("Cancelar").clicked() {
+                        if ui.button("Cancel").clicked() {
                             self.show_delete_modal = false;
                         }
                     });
