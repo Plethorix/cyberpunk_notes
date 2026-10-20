@@ -10,7 +10,7 @@ multiple notes at once, wrapped in a cyberpunk/terminal aesthetic — dark
 backgrounds, warm orange text (`#FFA500`), orange accents (`#FF8C00`), and
 monospaced fonts throughout.
 
-It's built in **Rust** with [`eframe`/`egui`](https://github.com/emilk/egui),
+It's built in **Rust** with egui),
 compiles to a **single binary of 3.8 MB**, and makes **zero disk writes during
 a session** — your notes live entirely in RAM and are persisted **once**, when
 you close the app.
