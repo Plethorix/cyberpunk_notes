@@ -2,8 +2,8 @@
 
 > A minimal, terminal-aesthetic notes manager for the desktop.  
 > Dark. Orange. Monospaced. Zero disk waste. 0 internet.
->
-> ## What is this?
+
+ ## What is this?
 
 **Cyberpunk Notes** is a lightweight, native desktop application for managing
 multiple notes at once, wrapped in a cyberpunk/terminal aesthetic — dark
@@ -34,3 +34,5 @@ churning your SSD.
 - 🪟 **Native window** — 900×600 default, resizable down to 400×300
 - 🚫 **No console window** on Windows (release builds)
 - 📦 **Tiny footprint** — ~3–6 MB executable, minimal memory
+
+- Made for the people by Plethorix
