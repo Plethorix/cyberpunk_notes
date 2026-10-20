@@ -16,20 +16,20 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact: cyberpunk-notes-linux
-            binary: cyberpunk-notes
+            artifact: cyberpunk_notes-linux
+            binary: cyberpunk_notes
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: cyberpunk-notes-windows
-            binary: cyberpunk-notes.exe
+            artifact: cyberpunk_notes-windows
+            binary: cyberpunk_notes.exe
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact: cyberpunk-notes-macos-arm
-            binary: cyberpunk-notes
+            artifact: cyberpunk_notes-macos-arm
+            binary: cyberpunk_notes
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact: cyberpunk-notes-macos-intel
-            binary: cyberpunk-notes
+            artifact: cyberpunk_notes-macos-intel
+            binary: cyberpunk_notes
 
     runs-on: ${{ matrix.os }}
 
@@ -87,8 +87,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/cyberpunk-notes-linux/cyberpunk-notes
-            artifacts/cyberpunk-notes-windows/cyberpunk-notes.exe
-            artifacts/cyberpunk-notes-macos-arm/cyberpunk-notes
-            artifacts/cyberpunk-notes-macos-intel/cyberpunk-notes
+            artifacts/cyberpunk_notes-linux/cyberpunk_notes
+            artifacts/cyberpunk_notes-windows/cyberpunk_notes.exe
+            artifacts/cyberpunk_notes-macos-arm/cyberpunk_notes
+            artifacts/cyberpunk_notes-macos-intel/cyberpunk_notes
           generate_release_notes: true
