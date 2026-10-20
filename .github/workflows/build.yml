@@ -1,0 +1,94 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:   # permite lanzarlo manualmente desde la web
+
+jobs:
+  build:
+    name: Build (${{ matrix.artifact }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: cyberpunk-notes-linux
+            binary: cyberpunk-notes
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: cyberpunk-notes-windows
+            binary: cyberpunk-notes.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: cyberpunk-notes-macos-arm
+            binary: cyberpunk-notes
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: cyberpunk-notes-macos-intel
+            binary: cyberpunk-notes
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependencias del sistema (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libwayland-dev \
+            libgl1-mesa-dev \
+            libx11-dev
+
+      - name: Instalar toolchain Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache de cargo
+        uses: swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Compilar
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: target/${{ matrix.target }}/release/${{ matrix.binary }}
+          if-no-files-found: error
+
+  # Solo se ejecuta al pushear un tag tipo v1.0.0
+  release:
+    name: Publicar release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Descargar artefactos
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: false
+
+      - name: Crear release en GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/cyberpunk-notes-linux/cyberpunk-notes
+            artifacts/cyberpunk-notes-windows/cyberpunk-notes.exe
+            artifacts/cyberpunk-notes-macos-arm/cyberpunk-notes
+            artifacts/cyberpunk-notes-macos-intel/cyberpunk-notes
+          generate_release_notes: true
