@@ -1,7 +1,7 @@
 # Cyberpunk Notes
 
 > A minimal, terminal-aesthetic notes manager for the desktop.  
-> Dark. Orange. Monospaced. Zero disk waste.
+> Dark. Orange. Monospaced. Zero disk waste. 0 internet.
 >
 > ## What is this?
 
