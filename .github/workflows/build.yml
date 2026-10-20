@@ -117,6 +117,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           files: |
             artifacts/cyberpunk_notes-linux/cyberpunk_notes
             artifacts/cyberpunk_notes-windows/cyberpunk_notes.exe
