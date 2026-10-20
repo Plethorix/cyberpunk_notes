@@ -236,6 +236,7 @@ impl eframe::App for CyberpunkNotes {
             self.save();
         }
 
+        // ─── Panel lateral izquierdo ───────────────────────────────────────
         egui::SidePanel::left("notes_panel")
             .default_width(220.0)
             .resizable(true)
@@ -269,18 +270,27 @@ impl eframe::App for CyberpunkNotes {
                 egui::ScrollArea::vertical()
                     .auto_shrink([false; 2])
                     .show(ui, |ui| {
+                        // SOLUCIÓN AL ERROR E0502:
+                        // Usamos una variable temporal para evitar mutar `self` 
+                        // mientras iteramos inmutablemente sobre `self.notes`.
+                        let mut new_active = None;
                         for (i, note) in self.notes.iter().enumerate() {
                             let is_active = self.active == Some(i);
                             if ui.selectable_label(is_active, &note.name).clicked() {
                                 if self.active != Some(i) {
-                                    self.active = Some(i);
-                                    self.mark_dirty();
+                                    new_active = Some(i);
                                 }
                             }
+                        }
+                        // Aplicamos el cambio después de que termine el bucle
+                        if let Some(i) = new_active {
+                            self.active = Some(i);
+                            self.mark_dirty();
                         }
                     });
             });
 
+        // ─── Panel central ─────────────────────────────────────────────────
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(idx) = self.active {
                 if idx >= self.notes.len() {
@@ -337,6 +347,7 @@ impl eframe::App for CyberpunkNotes {
             }
         });
 
+        // ─── Barra inferior ────────────────────────────────────────────────
         egui::TopBottomPanel::bottom("status_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.colored_label(self.save_status.color(), self.save_status.label());
@@ -350,6 +361,7 @@ impl eframe::App for CyberpunkNotes {
             });
         });
 
+        // ─── Modal de confirmación ─────────────────────────────────────────
         if self.show_delete_modal {
             let name = self
                 .active
@@ -380,6 +392,10 @@ impl eframe::App for CyberpunkNotes {
         self.save();
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// main
+// ─────────────────────────────────────────────────────────────────────────────
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
