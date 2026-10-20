@@ -270,9 +270,6 @@ impl eframe::App for CyberpunkNotes {
                 egui::ScrollArea::vertical()
                     .auto_shrink([false; 2])
                     .show(ui, |ui| {
-                        // SOLUCIÓN AL ERROR E0502:
-                        // Usamos una variable temporal para evitar mutar `self` 
-                        // mientras iteramos inmutablemente sobre `self.notes`.
                         let mut new_active = None;
                         for (i, note) in self.notes.iter().enumerate() {
                             let is_active = self.active == Some(i);
@@ -282,7 +279,6 @@ impl eframe::App for CyberpunkNotes {
                                 }
                             }
                         }
-                        // Aplicamos el cambio después de que termine el bucle
                         if let Some(i) = new_active {
                             self.active = Some(i);
                             self.mark_dirty();
@@ -398,11 +394,26 @@ impl eframe::App for CyberpunkNotes {
 // ─────────────────────────────────────────────────────────────────────────────
 
 fn main() -> eframe::Result<()> {
+    // Cargar el icono desde PNG
+    let icon_data = include_bytes!("../icon.png");
+    let icon = image::load_from_memory(icon_data)
+        .ok()
+        .and_then(|img| {
+            let rgba = img.to_rgba8();
+            let (width, height) = rgba.dimensions();
+            Some(eframe::IconData {
+                rgba: rgba.into_raw(),
+                width,
+                height,
+            })
+        });
+
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Cyberpunk Notes")
             .with_inner_size([900.0, 600.0])
-            .with_min_inner_size([400.0, 300.0]),
+            .with_min_inner_size([400.0, 300.0])
+            .with_icon(icon.unwrap_or_default()),
         ..Default::default()
     };
 
