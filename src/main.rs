@@ -134,7 +134,7 @@ impl CyberpunkNotes {
 
     fn create_note(&mut self) {
         let name = if self.new_note_name.trim().is_empty() {
-            format!("Nota {}", self.notes.len() + 1)
+            format!("Note {}", self.notes.len() + 1)
         } else {
             self.new_note_name.trim().to_string()
         };
@@ -286,7 +286,7 @@ impl eframe::App for CyberpunkNotes {
                     });
             });
 
-        // ───central panel ─────────────────────────────────────────────────
+        // ─── Central panel ─────────────────────────────────────────────────
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(idx) = self.active {
                 if idx >= self.notes.len() {
@@ -299,7 +299,7 @@ impl eframe::App for CyberpunkNotes {
                 Some(idx) => {
                     let mut title = self.notes[idx].name.clone();
                     let title_resp = ui.horizontal(|ui| {
-                        ui.label("▸ Título:");
+                        ui.label("▸ Title:");
                         ui.add(egui::TextEdit::singleline(&mut title).desired_width(f32::INFINITY))
                     });
                     if title_resp.inner.changed() {
@@ -308,7 +308,7 @@ impl eframe::App for CyberpunkNotes {
                     }
 
                     ui.horizontal(|ui| {
-                        if ui.button("✖ Eliminar").clicked() {
+                        if ui.button("✖ Delete").clicked() {
                             self.show_delete_modal = true;
                         }
                     });
@@ -320,7 +320,7 @@ impl eframe::App for CyberpunkNotes {
                     let mut content = self.notes[idx].content.clone();
                     let edit_resp = ui.add(
                         egui::TextEdit::multiline(&mut content)
-                            .hint_text("Escribe aquí...")
+                            .hint_text("Write here...")
                             .desired_width(f32::INFINITY)
                             .desired_rows(20),
                     );
@@ -343,13 +343,13 @@ impl eframe::App for CyberpunkNotes {
             }
         });
 
-        // ─── Low Bar ────────────────────────────────────────────────
+        // ─── Bottom bar ────────────────────────────────────────────────
         egui::TopBottomPanel::bottom("status_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.colored_label(self.save_status.color(), self.save_status.label());
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     let count = self.notes.len();
-                    ui.label(format!("{count} nota(s)"));
+                    ui.label(format!("{count} note(s)"));
                     if ui.button("💾 Save (Ctrl+S)").clicked() {
                         self.save();
                     }
@@ -357,7 +357,7 @@ impl eframe::App for CyberpunkNotes {
             });
         });
 
-        // ─── Modal de confirmación ─────────────────────────────────────────
+        // ─── Confirmation modal ─────────────────────────────────────────
         if self.show_delete_modal {
             let name = self
                 .active
@@ -370,10 +370,10 @@ impl eframe::App for CyberpunkNotes {
                 .collapsible(false)
                 .resizable(false)
                 .show(ctx, |ui| {
-                    ui.label(format!("¿Delete the note \"{name}\"?"));
+                    ui.label(format!("Delete the note \"{name}\"?"));
                     ui.add_space(10.0);
                     ui.horizontal(|ui| {
-                        if ui.button("Yes, eliminate it").clicked() {
+                        if ui.button("Yes, delete it").clicked() {
                             self.delete_active();
                         }
                         if ui.button("Cancel").clicked() {
@@ -394,7 +394,7 @@ impl eframe::App for CyberpunkNotes {
 // ─────────────────────────────────────────────────────────────────────────────
 
 fn main() -> eframe::Result<()> {
-    // Cargar el icono desde PNG y envolverlo en Arc
+    // Load the icon from PNG and wrap it in an Arc
     let icon = image::load_from_memory(include_bytes!("../icon.png"))
         .ok()
         .and_then(|img| {
@@ -407,13 +407,13 @@ fn main() -> eframe::Result<()> {
             }))
         });
 
-    // Construir el viewport base
+    // Build the base viewport
     let mut viewport = egui::ViewportBuilder::default()
         .with_title("Cyberpunk Notes")
         .with_inner_size([900.0, 600.0])
         .with_min_inner_size([400.0, 300.0]);
 
-    // Añadir el icono solo si se cargó correctamente
+    // Add the icon only if it loaded successfully
     if let Some(icon) = icon {
         viewport = viewport.with_icon(icon);
     }
